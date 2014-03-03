@@ -3,8 +3,10 @@ package data.structure.algorithm;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 
 public class MazeAlg {
@@ -48,30 +50,28 @@ public class MazeAlg {
 		offsets[3] = new Position(-1,0);
 		
 		largeData[startRow][startCol] = 1;
-		List<Position> posList = new ArrayList<Position>();
-		posList.add(new Position(startRow, endRow));
-		int value = 1;
+		Queue<Position> posList = new ArrayDeque<Position>();
+		posList.add(new Position(startRow, startRow));
 		
 		while(true){			
 			boolean flag = false;
-			Position here = posList.get(0);
-			System.out.println("here is:"+here.row + "," + here.col);
-			value = largeData[here.row][here.col]+1;
+			Position here = posList.peek();
+			System.out.println("here is:"+here.row + "," + here.col + ", and value is:"+ largeData[here.row][here.col]);
 			
 			for(int i=0;i<offsets.length-1;i++){
 				int row = here.row + offsets[i].row;
 				int col = here.col + offsets[i].col;
+												
+				if(largeData[row][col]==0){
+					largeData[row][col] = largeData[here.row][here.col]+1;
+					Position pos = new Position(row,col);
+					posList.add(pos);
+				}
 				
 				if((row==endRow) && (col==endCol)){
 					flag  = true;
 					break;
 				}				
-								
-				if(largeData[row][col]==0){
-					largeData[row][col] = value;
-					Position pos = new Position(row,col);
-					posList.add(pos);
-				}
 				
 			}
 			
@@ -79,7 +79,7 @@ public class MazeAlg {
 				break;
 			}
 			
-			posList.remove(0);
+			posList.poll();
 			if(posList.isEmpty()){
 				System.out.println("no available path,quit");
 				return;
@@ -88,20 +88,18 @@ public class MazeAlg {
 		}
 		
 		Position end = new Position(endRow, endCol);
-		int pathLen = value-2;
+		int pathLen = largeData[endRow][endCol]-2;
 		List<Position> path = new ArrayList<Position>(pathLen);
-		value--;
 		
 		Position here = end;
 		for(int i=0;i<pathLen;i++){
-			
+			int value = largeData[here.row][here.col]-1;
 			for(int j=0;j<offsets.length;j++){
 				int row = here.row + offsets[j].row;
 				int col = here.col + offsets[j].col;
 				
 				if(largeData[row][col]==value){
 					Position pos = new Position(row, col);
-					value--;
 					path.add(pos);				
 					here = pos; 
 					break;
